@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monitor</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%23000'/><circle cx='12' cy='12' r='5' fill='%23ff3b3b'/></svg>">
+  <link rel="preload" href="fonts/ShareTechMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="rec-dot"></span>MONITOR</div>
+    <div class="summary" id="summary"></div>
+    <div class="share-url" id="topbar-share" title="Open Monitor on other PCs and phones in your network with this address"></div>
+    <div class="clock" id="clock"></div>
+    <nav class="nav" aria-label="Pages">
+      <a class="btn" href="/" title="All cameras at a glance" aria-current="page">
+        <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg><span>OVERVIEW</span>
+      </a>
+      <a class="btn" href="/#live" title="Live video: one camera or several at once">
+        <svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zM12 5v14M3 12h18"/></svg><span>LIVE</span>
+      </a>
+      <a class="btn" href="/settings" title="Camera settings">
+        <svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span>SETUP</span>
+      </a>
+      <a class="btn" href="/network" title="Find cameras and set IP addresses">
+        <svg viewBox="0 0 24 24"><path d="M9 3h6v5H9zM3 16h6v5H3zM15 16h6v5h-6zM12 8v4M6 16v-4h12v4"/></svg><span>NETWORK</span>
+      </a>
+    </nav>
+  </header>
+
+  <!-- Overview: a still per camera, refreshed every second or so -->
+  <main id="overview" class="grid" aria-label="All cameras">
+    <div class="loading"><span class="spinner big"></span>LOADING CAMERAS…</div>
+  </main>
+  <footer class="credit">MADE BY <a href="https://zjaak.be" target="_blank" rel="noopener">ZJAAK.BE</a></footer>
+
+  <!-- Live: 1, 4, 6, 8 or 9 cameras, each spot showing the camera picked for it -->
+  <section id="live" class="live" hidden aria-label="Live">
+    <div class="live-grid" id="live-grid"></div>
+    <div class="controls-hint" id="controls-hint">PRESS [C] FOR CONTROLS</div>
+
+    <div class="live-bar">
+      <div class="bar-row">
+        <a class="btn" href="#" id="live-back" title="Back to the overview (Esc)">
+          <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg><span>OVERVIEW</span>
+        </a>
+        <span class="sep"></span>
+        <span class="bar-group" role="group" aria-label="Layout">
+          <button class="btn" type="button" data-size="1" title="1 camera (1)">1</button>
+          <button class="btn" type="button" data-size="4" title="4 cameras (4)">4</button>
+          <button class="btn" type="button" data-size="6" title="6 cameras (6)">6</button>
+          <button class="btn" type="button" data-size="8" title="8 cameras (8)">8</button>
+          <button class="btn" type="button" data-size="9" title="9 cameras (9)">9</button>
+        </span>
+        <span class="sep"></span>
+        <span class="bar-group" role="group" aria-label="Camera in the selected spot">
+          <button class="btn" id="cam-prev" type="button" title="Previous camera in this spot (←)">
+            <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+          </button>
+          <select id="cam-pick" title="Camera in the selected spot"></select>
+          <button class="btn" id="cam-next" type="button" title="Next camera in this spot (→)">
+            <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </span>
+        <span class="sep"></span>
+        <a class="btn" id="save" title="Save a snapshot of the selected camera" download>
+          <svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>SNAPSHOT</span>
+        </a>
+        <button class="btn" id="share" type="button" title="Address to open this view on another PC or phone (L)">
+          <svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg><span>LINK</span>
+        </button>
+        <button class="btn" id="fill" type="button" title="Fill each picture, cropping the edges (Z)" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zM8 10l-2 2 2 2M16 10l2 2-2 2"/></svg><span>FILL</span>
+        </button>
+        <button class="btn" id="fullscreen" type="button" title="Fullscreen (F)">
+          <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>FULLSCREEN</span>
+        </button>
+        </div>
+      <span class="bar-keys" id="bar-keys"></span>
+    </div>
+
+    <div class="share-pop" id="share-pop" hidden>
+      <strong>OPEN THIS VIEW ON ANOTHER PC OR PHONE</strong>
+      <div class="share-url" id="share-main"></div>
+      <small id="share-note"></small>
+    </div>
+  </section>
+
+  <template id="tile-tpl">
+    <button class="tile" type="button">
+      <div class="frame">
+        <img alt="">
+        <div class="osd osd-tl"><span class="cam-no"></span><span class="tile-name"></span></div>
+        <div class="osd osd-tr tile-time"></div>
+        <div class="osd osd-bl"><span class="dot"></span><span class="tile-state">CONNECTING</span></div>
+        <div class="tile-msg"></div>
+      </div>
+    </button>
+  </template>
+
+  <template id="live-cell-tpl">
+    <div class="live-cell">
+      <img alt="">
+      <div class="osd osd-tl"><span class="cam-no"></span><span class="tile-name"></span></div>
+      <div class="osd osd-tr live-time"></div>
+      <div class="osd osd-bl"><span class="dot"></span><span class="tile-state">CONNECTING</span><span class="mode-tag"></span></div>
+      <div class="tile-msg"></div>
+    </div>
+  </template>
+
+  <script src="modal.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

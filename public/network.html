@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Network · Monitor</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%23000'/><circle cx='12' cy='12' r='5' fill='%23ff3b3b'/></svg>">
+  <link rel="preload" href="fonts/ShareTechMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="settings-page">
+  <header class="topbar">
+    <div class="brand"><span class="rec-dot"></span>MONITOR</div>
+    <div class="clock" id="clock"></div>
+    <nav class="nav" aria-label="Pages">
+      <a class="btn" href="/" title="All cameras at a glance">
+        <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg><span>OVERVIEW</span>
+      </a>
+      <a class="btn" href="/#live" title="Live video: one camera or several at once">
+        <svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zM12 5v14M3 12h18"/></svg><span>LIVE</span>
+      </a>
+      <a class="btn" href="/settings" title="Camera settings">
+        <svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span>SETUP</span>
+      </a>
+      <a class="btn" href="/network" title="Find cameras and set IP addresses" aria-current="page">
+        <svg viewBox="0 0 24 24"><path d="M9 3h6v5H9zM3 16h6v5H3zM15 16h6v5h-6zM12 8v4M6 16v-4h12v4"/></svg><span>NETWORK</span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="panel">
+      <h2>CAMERAS ON THE NETWORK <span class="count" id="dev-count"></span></h2>
+      <div class="test-row first">
+        <button class="btn primary" id="scan" type="button">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><span>SCAN</span>
+        </button>
+        <span class="test-msg" id="scan-msg">Finds cameras on every network this PC is connected to (ONVIF, plus ACTi cameras in this PC's own ranges).</span>
+      </div>
+      <div id="devices" class="cam-list"></div>
+      <details class="advanced" id="others" hidden>
+        <summary>OTHER WEB DEVICES <span id="others-count"></span></summary>
+        <div id="other-list" class="cam-list"></div>
+      </details>
+    </section>
+
+    <section class="panel">
+      <h2>THIS PC</h2>
+      <p class="note" id="pc-note"></p>
+      <div id="adapters" class="cam-list"><div class="loading"><span class="spinner"></span>READING NETWORK ADAPTERS…</div></div>
+
+      <div class="reach" id="reach">
+        <h3>REACH A CAMERA IN ANOTHER IP RANGE</h3>
+        <p class="note">Gives this PC an extra address in the camera's range. The PC's normal address and internet keep working.
+          New ACTi cameras start at 192.168.0.100.</p>
+        <div class="fields">
+          <label>CAMERA IP <input id="reach-cam" type="text" spellcheck="false" value="192.168.0.100"></label>
+          <label>ADAPTER <select id="reach-adapter"></select></label>
+          <label>EXTRA PC ADDRESS <input id="reach-ip" type="text" spellcheck="false"></label>
+          <label class="wide">NETWORK SIZE (PREFIX / SUBNET MASK) <select id="reach-prefix" class="prefix-select"></select><small class="range-hint" id="reach-range"></small></label>
+        </div>
+        <div class="test-row">
+          <button class="btn primary" id="reach-add" type="button">ADD PC ADDRESS</button>
+          <span class="test-msg" id="reach-msg"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="ipu-panel" hidden>
+      <h2>ACTi IP UTILITY</h2>
+      <p class="note">For what Monitor doesn't do itself, like firmware upgrades or config backup.</p>
+      <div class="test-row first">
+        <button class="btn" id="ipu" type="button">OPEN IP UTILITY</button>
+        <span class="test-msg" id="ipu-msg"></span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="credit">MADE BY <a href="https://zjaak.be" target="_blank" rel="noopener">ZJAAK.BE</a></footer>
+
+  <template id="dev-tpl">
+    <article class="cam-card">
+      <header class="cam-head">
+        <span class="cam-no"></span>
+        <span class="cam-title"></span>
+        <div class="cam-tools">
+          <a class="btn" data-act="web" target="_blank" rel="noopener" title="Open the camera's own web interface">WEB UI</a>
+          <a class="btn" data-act="add" title="Add this camera to Monitor">ADD TO MONITOR</a>
+          <button class="btn" data-act="change" type="button">CHANGE IP</button>
+        </div>
+      </header>
+      <div class="dev-meta"></div>
+      <div class="dev-status"></div>
+      <form class="change-form" hidden>
+        <div class="fields">
+          <label>NEW IP <input data-f="newIp" type="text" spellcheck="false" required></label>
+          <label class="wide">NETWORK SIZE (PREFIX / SUBNET MASK) <select data-f="prefix" class="prefix-select"></select><small class="range-hint"></small></label>
+          <label>GATEWAY <input data-f="gateway" type="text" spellcheck="false"><small>Your router; empty = keep</small></label>
+          <label>USER <input data-f="user" type="text" spellcheck="false" autocomplete="off"></label>
+          <label>PASSWORD <input data-f="password" type="password" autocomplete="new-password"></label>
+        </div>
+        <div class="test-row">
+          <button class="btn primary" type="submit">APPLY</button>
+          <span class="test-msg"></span>
+        </div>
+      </form>
+    </article>
+  </template>
+
+  <template id="adapter-tpl">
+    <article class="cam-card">
+      <header class="cam-head">
+        <span class="cam-no"></span>
+        <span class="cam-title"></span>
+        <div class="cam-tools">
+          <button class="btn" data-act="dhcp" type="button" title="Remove fixed addresses and get an address from the router again">BACK TO AUTOMATIC</button>
+        </div>
+      </header>
+      <div class="addr-list"></div>
+    </article>
+  </template>
+
+  <script src="modal.js"></script>
+  <script src="network.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The window only shows the local Monitor server's pages; they need no app commands.",
+  "windows": ["main"],
+  "permissions": []
+}

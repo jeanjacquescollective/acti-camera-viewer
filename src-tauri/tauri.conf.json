@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Monitor",
+  "version": "1.2.0",
+  "identifier": "com.monitor.cameraviewer",
+  "build": {
+    "frontendDist": "../app-shell"
+  },
+  "app": {
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"],
+    "externalBin": ["binaries/monitor-server"],
+    "shortDescription": "IP camera viewer",
+    "longDescription": "View IP cameras, set them up and change their IP addresses.",
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper", "silent": true },
+      "nsis": {
+        "installMode": "currentUser",
+        "startMenuFolder": "Monitor"
+      }
+    }
+  }
+}

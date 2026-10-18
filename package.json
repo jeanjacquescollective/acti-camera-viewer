@@ -1,0 +1,20 @@
+{
+  "name": "acti-camera-viewer",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Browser viewer for ACTi (and other) IP cameras: overview grid plus a live view per camera.",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js --open",
+    "serve": "node server.js",
+    "build:exe": "node build-exe.js",
+    "build:app": "node build-app.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.3",
+    "postject": "^1.0.0-alpha.6"
+  }
+}

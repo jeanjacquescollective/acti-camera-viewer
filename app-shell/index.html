@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Monitor</title>
+  <!-- Shown by the desktop app while the Monitor server starts; the app then
+       navigates this window to the server. -->
+  <style>
+    :root { --bg: #000; --panel: #0a0d0b; --border: #1f2a22; --text: #d8e6dc; --muted: #6f8a77; --green: #3cff8f; --rec: #ff3b3b; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.4 Consolas, "Lucida Console", monospace; letter-spacing: .06em; }
+    body { display: grid; place-items: center; text-transform: uppercase; }
+    .box { text-align: center; max-width: 640px; padding: 24px; }
+    .brand { color: var(--green); font-size: 22px; display: flex; gap: 12px; align-items: center; justify-content: center; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--rec); animation: blink 1.2s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    #msg { color: var(--muted); margin-top: 14px; display: flex; gap: 10px; align-items: center; justify-content: center; }
+    #msg::before { content: ""; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin .8s linear infinite; }
+    #msg.failed::before { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .credit { margin-top: 40px; color: var(--muted); font-size: 11px; letter-spacing: .12em; }
+    #err { display: none; margin-top: 18px; padding: 12px; border: 1px solid var(--rec); color: var(--rec); text-transform: none; text-align: left; white-space: pre-wrap; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="brand"><span class="dot"></span>MONITOR</div>
+    <div id="msg">STARTING…</div>
+    <div id="err"></div>
+    <div class="credit">MADE BY ZJAAK.BE</div>
+  </div>
+  <script>
+    // Called by the app when the server could not start.
+    function showError(text) {
+      const msg = document.getElementById('msg');
+      msg.textContent = 'COULD NOT START';
+      msg.classList.add('failed');
+      const err = document.getElementById('err');
+      err.textContent = text;
+      err.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

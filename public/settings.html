@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Setup · Monitor</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%23000'/><circle cx='12' cy='12' r='5' fill='%23ff3b3b'/></svg>">
+  <link rel="preload" href="fonts/ShareTechMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="settings-page">
+  <header class="topbar">
+    <div class="brand"><span class="rec-dot"></span>MONITOR</div>
+    <div class="clock" id="clock"></div>
+    <nav class="nav" aria-label="Pages">
+      <a class="btn" href="/" title="All cameras at a glance">
+        <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg><span>OVERVIEW</span>
+      </a>
+      <a class="btn" href="/#live" title="Live video: one camera or several at once">
+        <svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zM12 5v14M3 12h18"/></svg><span>LIVE</span>
+      </a>
+      <a class="btn" href="/settings" title="Camera settings" aria-current="page">
+        <svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span>SETUP</span>
+      </a>
+      <a class="btn" href="/network" title="Find cameras and set IP addresses">
+        <svg viewBox="0 0 24 24"><path d="M9 3h6v5H9zM3 16h6v5H3zM15 16h6v5h-6zM12 8v4M6 16v-4h12v4"/></svg><span>NETWORK</span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <div class="level-bar">
+      <span class="bar-group" role="group" aria-label="Settings shown">
+        <button class="btn" type="button" data-level="basic" aria-pressed="true">BASIC</button>
+        <button class="btn" type="button" data-level="advanced" aria-pressed="false">ADVANCED</button>
+      </span>
+      <small class="muted" id="level-note"></small>
+    </div>
+
+    <section class="panel adv-only">
+      <h2>SYSTEM</h2>
+      <div class="fields">
+        <label>WEB PORT
+          <input id="port" type="number" min="1" max="65535" placeholder="8080">
+          <small>Address: http://&lt;this-pc&gt;:PORT</small>
+        </label>
+        <label>OVERVIEW REFRESH (MS)
+          <input id="overviewRefreshMs" type="number" min="200" max="60000" step="100" placeholder="1000">
+          <small>How often the overview's pictures update</small>
+        </label>
+        <label class="wide">FFMPEG PATH
+          <input id="ffmpegPath" type="text" spellcheck="false" placeholder="ffmpeg">
+          <small id="ffmpeg-status"></small>
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>CAMERAS <span class="count" id="cam-count"></span></h2>
+      <div id="cam-list" class="cam-list"><div class="loading"><span class="spinner"></span>LOADING SETTINGS…</div></div>
+      <button class="btn add-btn" id="add" type="button">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>ADD CAMERA</span>
+      </button>
+    </section>
+
+    <p class="config-path" id="config-path"></p>
+  </main>
+
+  <footer class="credit">MADE BY <a href="https://zjaak.be" target="_blank" rel="noopener">ZJAAK.BE</a></footer>
+
+  <footer class="savebar">
+    <span class="save-msg" id="save-msg"></span>
+    <button class="btn" id="revert" type="button">REVERT</button>
+    <button class="btn primary" id="save" type="button">
+      <svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg><span>SAVE</span>
+    </button>
+  </footer>
+
+  <template id="cam-tpl">
+    <article class="cam-card">
+      <header class="cam-head">
+        <span class="cam-no"></span>
+        <span class="cam-title"></span>
+        <div class="cam-tools">
+          <button class="btn icon" data-act="up" type="button" title="Move up"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
+          <button class="btn icon" data-act="down" type="button" title="Move down"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+          <a class="btn" data-act="web" target="_blank" rel="noopener" title="Open the camera's own web interface (save first)">WEB UI</a>
+          <button class="btn danger" data-act="delete" type="button" title="Remove camera">DELETE</button>
+        </div>
+      </header>
+
+      <div class="fields">
+        <label>NAME <input data-f="name" type="text" maxlength="40"></label>
+        <label>IP ADDRESS <input data-f="host" type="text" spellcheck="false" placeholder="192.168.0.100"></label>
+        <label>USER <input data-f="user" type="text" spellcheck="false" placeholder="admin" autocomplete="off"></label>
+        <label>PASSWORD <input data-f="password" type="password" autocomplete="new-password"></label>
+        <label class="adv-only">MODE
+          <select data-f="mode">
+            <option value="rtsp">RTSP (smooth, needs ffmpeg)</option>
+            <option value="snapshot">SNAPSHOT (no extra software)</option>
+          </select>
+        </label>
+        <label class="adv-only">FPS <input data-f="fps" type="number" min="1" max="30" placeholder="5"></label>
+      </div>
+
+      <details class="advanced camera-box">
+        <summary>IN THE CAMERA: DAY/NIGHT<span class="adv-only">, VIDEO</span> <span class="muted">(ACTi · APPLIES DIRECTLY, NO SAVE NEEDED)</span></summary>
+        <div class="camera-body"></div>
+      </details>
+
+      <details class="advanced adv-only conn-box">
+        <summary>CONNECTION &amp; LIVE DELAY</summary>
+        <div class="fields">
+          <label>HTTP PORT <input data-f="httpPort" type="number" min="1" max="65535" placeholder="80"></label>
+          <label>RTSP PORT <input data-f="rtspPort" type="number" min="1" max="65535" placeholder="7070"></label>
+          <label>RTSP TRANSPORT
+            <select data-f="rtspTransport">
+              <option value="tcp">TCP (recommended)</option>
+              <option value="udp">UDP</option>
+            </select>
+          </label>
+          <label class="wide">SNAPSHOT URL (OVERRIDE) <input data-f="snapshotUrl" type="text" spellcheck="false" placeholder="ACTi default: http://IP/cgi-bin/encoder?USER=..&amp;PWD=..&amp;SNAPSHOT"></label>
+          <label class="wide">RTSP URL (OVERRIDE) <input data-f="rtspUrl" type="text" spellcheck="false" placeholder="ACTi default: rtsp://USER:PASS@IP:7070/"></label>
+        </div>
+
+        <div class="latency">
+          <h4>LIVE VIEW DELAY <span class="muted">(RTSP MODE)</span></h4>
+          <div class="fields">
+            <label>PRESET
+              <select data-p="latency">
+                <option value="lowest">LOWEST DELAY</option>
+                <option value="balanced">BALANCED (DEFAULT)</option>
+                <option value="smooth">SMOOTHEST</option>
+                <option value="custom" disabled>CUSTOM</option>
+              </select>
+              <small>Fills in the options below</small>
+            </label>
+            <label>LOW-DELAY DECODING
+              <select data-f="lowDelay" data-default="true"><option value="true">ON</option><option value="false">OFF</option></select>
+              <small>ffmpeg passes video on without buffering</small>
+            </label>
+            <label>FAST START
+              <select data-f="fastStart" data-default="true"><option value="true">ON</option><option value="false">OFF</option></select>
+              <small>First picture after ~1 s instead of ~3-4 s</small>
+            </label>
+            <label>WAIT FOR LATE PACKETS
+              <select data-f="jitterMs" data-default="200">
+                <option value="0">0 MS (LOWEST DELAY)</option>
+                <option value="100">100 MS</option>
+                <option value="200">200 MS (DEFAULT)</option>
+                <option value="500">500 MS</option>
+                <option value="1000">1 S</option>
+              </select>
+              <small>UDP: more = fewer broken frames on a busy network</small>
+            </label>
+            <label>FRAME PACING
+              <select data-f="pacing" data-default="arrival">
+                <option value="arrival">AS THEY ARRIVE</option>
+                <option value="fixed">EXACT FPS</option>
+              </select>
+              <small>As they arrive = lowest delay. Exact FPS evens out the pace by waiting and repeating frames</small>
+            </label>
+            <label>PICTURE QUALITY
+              <select data-f="jpegQuality" data-default="5">
+                <option value="2">2 · BEST, MOST DATA</option>
+                <option value="3">3</option>
+                <option value="5">5 (DEFAULT)</option>
+                <option value="8">8</option>
+                <option value="12">12 · SMALLEST</option>
+              </select>
+              <small>Of the frames Monitor sends to viewers</small>
+            </label>
+            <label>SLOW VIEWERS
+              <select data-f="dropLate" data-default="true">
+                <option value="true">SKIP FRAMES (STAY LIVE)</option>
+                <option value="false">QUEUE FRAMES (CAN LAG)</option>
+              </select>
+              <small>For a viewer on slow Wi-Fi</small>
+            </label>
+          </div>
+        </div>
+      </details>
+
+      <div class="test-row">
+        <button class="btn" data-act="test-snapshot" type="button">TEST SNAPSHOT</button>
+        <button class="btn adv-only" data-act="test-rtsp" type="button">TEST RTSP</button>
+        <span class="test-msg"></span>
+      </div>
+      <div class="test-frame" hidden><img alt="Test image"></div>
+      <div class="share-url" title="Open this camera live on another PC or phone in your network"></div>
+    </article>
+  </template>
+
+  <script src="modal.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>
